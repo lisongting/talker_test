@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/talker.dir/FileUtil.cpp.o CMakeFiles/talker.dir/main.cpp.o CMakeFiles/talker.dir/Talker.cpp.o CMakeFiles/talker.dir/linuxrec.cpp.o CMakeFiles/talker.dir/speech_recognizer.cpp.o  -o talker -rdynamic -lmsc -lpthread -laiui -lasound 

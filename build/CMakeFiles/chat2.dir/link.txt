@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/chat2.dir/FileUtil.cpp.o CMakeFiles/chat2.dir/main.cpp.o  -o chat2 -rdynamic -lmsc -lpthread -laiui 
