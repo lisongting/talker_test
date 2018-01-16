@@ -15,8 +15,6 @@ CMakeFiles/talker.dir/linuxrec.cpp.o
  ../include/linuxrec.h
  /home/lee/test/aiui/chat2/linuxrec.cpp
 CMakeFiles/talker.dir/main.cpp.o
- ../include/AIUITest.h
- ../include/FileUtil.h
  ../include/Talker.h
  ../include/msp_cmn.h
  ../include/msp_errors.h

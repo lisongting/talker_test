@@ -14,8 +14,6 @@ CMakeFiles/talker.dir/linuxrec.cpp.o: ../include/formats.h
 CMakeFiles/talker.dir/linuxrec.cpp.o: ../include/linuxrec.h
 CMakeFiles/talker.dir/linuxrec.cpp.o: ../linuxrec.cpp
 
-CMakeFiles/talker.dir/main.cpp.o: ../include/AIUITest.h
-CMakeFiles/talker.dir/main.cpp.o: ../include/FileUtil.h
 CMakeFiles/talker.dir/main.cpp.o: ../include/Talker.h
 CMakeFiles/talker.dir/main.cpp.o: ../include/msp_cmn.h
 CMakeFiles/talker.dir/main.cpp.o: ../include/msp_errors.h
