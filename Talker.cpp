@@ -25,9 +25,10 @@ Talker::~Talker(){
 void Talker::init(){
 
         int ret = MSPLogin(NULL, NULL, login_params);
+//         cout<<"---------------login()   talker init"<<endl;
         if (MSP_SUCCESS != ret){
             printf("MSPLogin failed, error code: %d.\n", ret);
-            MSPLogout(); //退出登录
+            //MSPLogout(); //退出登录
             exit(0);
         }
 }
@@ -166,14 +167,14 @@ int Talker::play(on_play_finished  callback){
         break ;
 
     }
-    rc=snd_pcm_hw_params_set_channels(handle, params, channels); //设置声道,1表示单声>道，2表示立体声
+    rc=snd_pcm_hw_params_set_channels(handle, params, channels); //设置声道,1表示单声道，2表示立体声
     if(rc<0)
     {
         perror("\nSnd_pcm_hw_params_set_channels:");
         exit(1);
     }
     val = frequency;
-    rc=snd_pcm_hw_params_set_rate_near(handle, params, &val, &dir); //设置>频率
+    rc=snd_pcm_hw_params_set_rate_near(handle, params, &val, &dir); //设置频率
     if(rc<0)
     {
         perror("\nSnd_pcm_hw_params_set_rate_near:");
@@ -187,15 +188,15 @@ int Talker::play(on_play_finished  callback){
         exit(1);
     }
 
-    rc=snd_pcm_hw_params_get_period_size(params, &frames, &dir); /*获取周期
-    长度*/
+    /*获取周期长度*/
+    rc=snd_pcm_hw_params_get_period_size(params, &frames, &dir);
     if(rc<0)
     {
         perror("\nSnd_pcm_hw_params_get_period_size:");
         exit(1);
     }
 
-    size = frames * datablock; /*4 代表数据快长度*/
+    size = frames * datablock; /*代表数据块长度*/
 
     buffer =(char*)malloc(size);
     fseek(fp,58,SEEK_SET); //定位歌曲到数据区
@@ -204,14 +205,15 @@ int Talker::play(on_play_finished  callback){
     {
         memset(buffer,0,sizeof(buffer));
         ret = fread(buffer, 1, size, fp);
-        if(ret == 0){
-            printf("talk finished\n");
+//        cout<<"size:"<<size<<endl;
+//        cout<<"ret:"<<ret<<endl;
+        if(ret <size){
+            printf("Talk finished\n");
             break;
-        }else if (ret != size){
         }
         // 写音频数据到PCM设备
         while(ret = snd_pcm_writei(handle, buffer, frames)<0){
-//            usleep(2000);
+            usleep(2000);
             if (ret == -EPIPE)
             {
                 /* EPIPE means underrun */
@@ -233,6 +235,7 @@ int Talker::play(on_play_finished  callback){
     snd_pcm_close(handle);
     free(buffer);
     MSPLogout();
+//     cout<<"---------------logout() talkfinished"<<endl;
     callback();
     return 0;
 }

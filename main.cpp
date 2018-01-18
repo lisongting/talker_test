@@ -25,6 +25,7 @@ Talker talker;
 ISpeechUtility* speechUtility;
 char *g_result = NULL;
 unsigned int g_buffersize = BUFFER_SIZE;
+bool isInteracting = false;
 
 class MyListener : public IAIUIListener{
 public:
@@ -34,15 +35,20 @@ public:
 //回调函数:当回答语音播放完成时，开启录音进行下一轮对话
 void onPlayFinished(){
     cout<<"TTS  Finished"<<endl;
-    start_recording(session_record_begin_params);
+    isInteracting = false;
 }
 MyListener listener;
 IAIUIAgent *agent ;
 
 int main(){
      while(true){
-         start_recording(session_record_begin_params);
-         MSPLogout();
+         if(!isInteracting){
+             //callback  function  of start_recording :  on_result
+             start_recording(session_record_begin_params);
+             //cout<<"---------------logout()  while"<<endl;
+             MSPLogout();
+         }
+
      }
 
 	return 0;
@@ -120,17 +126,19 @@ void MyListener::onEvent(IAIUIEvent& event){
                     Value& s1 = s["answer"];
                     assert(s1.HasMember("text"));
                     result =  s1["text"].GetString();
-
-                   stopAIUI();
-                   talker.init();
-                   talker.talk((char*)result.c_str(),onPlayFinished);
-                }else{
-                    result = "这个问题有点难，换一个吧";
+                    cout<<"Response:  ----------> "<<result<<endl;
                     stopAIUI();
                     talker.init();
                     talker.talk((char*)result.c_str(),onPlayFinished);
+                }else{
+                    result = "这个问题有点难,换一个吧";
+                    cout<<"Response:  ----------> "<<result<<endl;
+                    stopAIUI();
+                    //talker.playHard(onPlayFinished);
+                    talker.init();
+                    talker.talk((char*)result.c_str(),onPlayFinished);
                 }
-                cout<<"Response:  ----------> "<<result<<endl;
+
             }
         }
         break;
@@ -138,12 +146,18 @@ void MyListener::onEvent(IAIUIEvent& event){
     case AIUIConstant::EVENT_ERROR:
         {
             cout << "EVENT_ERROR:" << event.getArg1() << endl;
+            if(event.getArg1()==10111){
+               stopAIUI();
+               start_recording(session_record_begin_params);
+               //cout<<"10111  login ret:"<<ret<<endl;
+            }
         } break;
     }
 }
 
 //发送文本进行aiui文本对话
 void writeText(string s){
+     isInteracting = true;
     AIUISetting::setLogLevel(info);
     speechUtility = ISpeechUtility::createSingleInstance("", "",
         "appid=5a52e95f");
@@ -180,9 +194,9 @@ void writeText(string s){
 void start_recording(const char* session_begin_params){
 
     int ret = MSPLogin(NULL, NULL, login_params);
+//     cout<<"---------------login()   start_recording"<<endl;
     if (MSP_SUCCESS != ret)	{
         cout<<"MSPLogin failed , Error code  "<<ret<<endl;
-        MSPLogout();
     }
    cout<<"\nYou can  speak to me(record  for 10 seconds) : "<<endl;
    int errcode;
@@ -222,6 +236,8 @@ void start_recording(const char* session_begin_params){
 //语音识别的结果回调
 void on_result(const char *result, char is_last){
     cout<<"Speech recognition result: "<<result<<endl;
+    MSPLogout();
+//     cout<<"---------------logout()  on_result"<<endl;
     if (result) {
         size_t left = g_buffersize - 1 - strlen(g_result);
         size_t size = strlen(result);
@@ -238,7 +254,7 @@ void on_result(const char *result, char is_last){
 
         strncat(g_result, result, size);
 
-        MSPLogout();
+
         writeText(result);
     }
 
@@ -257,10 +273,21 @@ void on_speech_begin(){
 
 //语音识别结束
 void on_speech_end(int reason){
-    if (reason == END_REASON_VAD_DETECT)
+     cout<<"On speech end -- code:"<<reason<<endl;
+
+    if (reason == END_REASON_VAD_DETECT){
         cout<<"Speaking done.  ";
-    else
-        cout<<"Recognizer error   code:"<<reason<<endl;
+    }else{
+         isInteracting = false;
+    }
+
+    if(reason==10114){
+        cout<<"网络请求超时"<<endl;
+    }else if(reason==10108){
+
+    }
+
+
 
 }
 
